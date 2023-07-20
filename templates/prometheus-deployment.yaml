@@ -20,17 +20,6 @@ spec:
       labels:
         io.apiida_aagm.service: prometheus
     spec:
-      initContainers:
-        - name: fix-prometheus-perms
-          image: alpine:3
-          command:
-            - /bin/sh
-            - '-c'
-            - chown 65534 /prometheus
-          resources: {}
-          volumeMounts:
-            - name: aagm-prometheus-vol
-              mountPath: /prometheus
       containers:
         - args:
             - --web.enable-admin-api
@@ -44,6 +33,11 @@ spec:
             - mountPath: /prometheus
               name: aagm-prometheus-vol
               readOnly: false
+      securityContext:
+        runAsUser: 1000
+        runAsNonRoot: true  
+        runAsGroup: 65534
+        fsGroup: 2000
       restartPolicy: Always
       volumes:
         - name: aagm-prometheus-vol
