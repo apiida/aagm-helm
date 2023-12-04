@@ -20,6 +20,20 @@ spec:
       labels:
         io.apiida_aagm.service: aagm
     spec:
+      initContainers:
+        - name: fix-optaagm-perms
+          image: alpine:3
+          command:
+            - /bin/sh
+            - '-c'
+            - chown 100 /data
+          resources: {}
+          volumeMounts:
+            - name: aagm-claim0
+              mountPath: /data
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
       containers:
         - env:
             - name: NOSTROMO_DB_HOST
@@ -40,9 +54,6 @@ spec:
             - mountPath: /opt/aagm
               name: aagm-claim0
               readOnly: false
-      securityContext:
-        runAsUser: 101
-        runAsGroup: 101
       restartPolicy: Always
       volumes:
         - name: aagm-claim0
